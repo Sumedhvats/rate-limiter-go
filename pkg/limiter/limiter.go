@@ -12,7 +12,7 @@ type Limiter interface{
 	Reset(key string) error
 	GetStats(key string)(*stats,error)
 }
-type config struct{
+type Config struct{
 	Rate int
 	Window time.Duration
 	Burst int

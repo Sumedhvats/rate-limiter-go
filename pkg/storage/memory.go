@@ -56,8 +56,9 @@ func (s *MemoryStorage) Set(key string,value interface{}, ttl time.Duration)erro
    return nil
 }
 
-func (s *MemoryStorage) Delete(key string){
+func (s *MemoryStorage) Delete(key string)error{
 s.data.Delete(key)
+return nil
 }
 
 func (s *MemoryStorage) Increment(key string, amount int) (int64, error) {

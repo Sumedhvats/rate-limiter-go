@@ -13,9 +13,9 @@ type tokenBucket struct{
 }
 type TokenBucketLimiter struct{
 	storage Storage
-	config config
+	config Config
 }
-func NewTokenBucketLimiter(store Storage, cfg config)(*TokenBucketLimiter){
+func NewTokenBucketLimiter(store Storage, cfg Config)(*TokenBucketLimiter){
 	return &TokenBucketLimiter{
 		storage: store,
 		config: cfg,
@@ -41,9 +41,9 @@ func (t *TokenBucketLimiter)AllowN(key string,n int)(bool,error){
 		elapsed:= now.Sub(bucket.lastRefilTime).Seconds()
 		tokenAdded:=elapsed*bucket.refillRate
 		bucket.tokens = min(bucket.tokens+tokenAdded, float64(bucket.capacity))
-		bucket.lastRefilTime=now
+    bucket.lastRefilTime = now
 	}
-	if(bucket.tokens>float64(n)){
+	if(bucket.tokens>=float64(n)){
 		bucket.tokens-=float64(n)
 		t.storage.Set(key,bucket,t.config.Window)
 		return true,nil
@@ -58,18 +58,27 @@ func (t *TokenBucketLimiter)Reset(key string) error{
 	return t.storage.Delete(key)
 }
 func (t *TokenBucketLimiter) GetStats(key string) (*stats, error) {
-
-	data,_:=t.storage.Get(key)
+	now := time.Now()
+	data, _ := t.storage.Get(key)
 	var bucket *tokenBucket
-	if(data==nil){
-		return &stats{},fmt.Errorf("not found key")
-	}else{
-		bucket=data.(*tokenBucket)
-	bucketStats:=&stats{
-		Limit: t.config.Burst,
-		Remaining: int(bucket.tokens),
-		ResetAt: bucket.lastRefilTime.Add(t.config.Window),
+	if data == nil {
+		return &stats{}, fmt.Errorf("not found key")
+	} else {
+		bucket = data.(*tokenBucket)
+		
+		elapsed := now.Sub(bucket.lastRefilTime).Seconds()
+		tokenAdded := elapsed * bucket.refillRate
+		bucket.tokens = min(bucket.tokens+tokenAdded, float64(bucket.capacity))
+		bucket.lastRefilTime = now
+		
+		// Update storage with refilled tokens
+		t.storage.Set(key, bucket, t.config.Window)
+		
+		bucketStats := &stats{
+			Limit:     t.config.Burst,
+			Remaining: int(bucket.tokens),
+			ResetAt:   bucket.lastRefilTime.Add(t.config.Window),
+		}
+		return bucketStats, nil
 	}
-	return bucketStats,nil
-}
 }
