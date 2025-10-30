@@ -21,6 +21,6 @@ type Config struct{
 type Storage interface{
 	Get(key string)(interface{},error)
 	Set(key string , value interface{}, ttl time.Duration)error
-	Increment(key string, value int)(int64,error)
+	Increment(key string, value int,ttl time.Duration)(int64,error)
 	Delete(key string)error
 }

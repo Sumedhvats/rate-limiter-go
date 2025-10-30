@@ -39,11 +39,11 @@ func TestExpiration (t *testing.T){
 func TestMemoryStorate_Increment(t *testing.T){
 	store:=NewMemoryStorage()
 	
-	val,err:=store.Increment("counter",5)
+	val,err:=store.Increment("counter",5,time.Minute)
 	  assert.NoError(t, err)
     assert.Equal(t, int64(5), val)
 
-val,err=store.Increment("counter",3)
+val,err=store.Increment("counter",3,time.Minute)
 	  assert.NoError(t, err)
     assert.Equal(t, int64(8), val)
 	
@@ -59,7 +59,7 @@ func TestConcurrentAccess(t *testing.T){
 		wg.Add(1)
 		go func(){
 			defer wg.Done()
-			_,err:=store.Increment("temp",100)
+			_,err:=store.Increment("temp",100,time.Minute)
 			assert.NoError(t,err)
 		}()
 		}

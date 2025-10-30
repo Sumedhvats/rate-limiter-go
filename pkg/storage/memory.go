@@ -25,7 +25,7 @@ func (s *MemoryStorage) cleanupExpired(){
 	for range s.cleanup.C{
 		now :=time.Now()
 		s.data.Range(func(key, value interface{}) bool {
-			entry:=value.(memoryEntry)
+			entry:=value.(*memoryEntry)
 			if now.After(entry.expiresAt){
 				s.data.Delete(key)
 			}
@@ -61,13 +61,13 @@ s.data.Delete(key)
 return nil
 }
 
-func (s *MemoryStorage) Increment(key string, amount int) (int64, error) {
+func (s *MemoryStorage) Increment(key string, amount int,ttl time.Duration) (int64, error) {
 	for {
 		entryAny, ok := s.data.Load(key)
 		if !ok {
 			entry := &memoryEntry{
 				value:     int64(amount),
-				expiresAt: time.Now().Add(10 * time.Minute),
+				expiresAt: time.Now().Add(ttl),
 			}
 			s.data.Store(key, entry)
 			return int64(amount), nil

@@ -21,7 +21,7 @@ func (f *FixedWindowLimiter) AllowN(key string, n int) (bool, error) {
 	windowStart := now.Truncate(f.config.Window)
 	windowKey := fmt.Sprintf("%s:%d", key, windowStart.Unix())
 
-	count, err := f.storage.Increment(windowKey, n)
+	count, err := f.storage.Increment(windowKey, n,f.config.Window)
 	if err != nil {
 		return false, err
 	}
