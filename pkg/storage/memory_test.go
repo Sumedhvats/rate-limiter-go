@@ -22,7 +22,6 @@ func TestMemoryStorate_GetSet(t *testing.T) {
 func TestExpiration (t *testing.T){
 	  store := NewMemoryStorage()
 
-    // Set key with short TTL
     ttl := 100* time.Millisecond
 	err:=store.Set("tempKey","tempValue",ttl)
 	assert.NoError(t,err)
@@ -39,13 +38,12 @@ func TestExpiration (t *testing.T){
 
 func TestMemoryStorate_Increment(t *testing.T){
 	store:=NewMemoryStorage()
-	//Increment non-existent key by 5 should return 5
+	
 	val,err:=store.Increment("counter",5)
 	  assert.NoError(t, err)
     assert.Equal(t, int64(5), val)
 
-	//Increment again by 3 should return 8
-	val,err=store.Increment("counter",3)
+val,err=store.Increment("counter",3)
 	  assert.NoError(t, err)
     assert.Equal(t, int64(8), val)
 	

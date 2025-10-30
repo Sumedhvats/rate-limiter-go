@@ -14,7 +14,7 @@ type Limiter interface{
 }
 type config struct{
 	Rate int
-	Window time.Time
+	Window time.Duration
 	Burst int
 }
 
