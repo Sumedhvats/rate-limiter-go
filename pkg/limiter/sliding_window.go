@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"time"
+	"github.com/sumedhvats/rate-limiter-go/pkg/storage"
 )
 
 type SlidingWindowLimiter struct {
@@ -25,7 +26,18 @@ func (swl *SlidingWindowLimiter) AllowN(key string, n int) (bool, error) {
 	
 	prevStart := windowStart.Add(-swl.config.Window)
 	prevWinKey := fmt.Sprintf("%s:%d", key, prevStart.Unix())
-	
+	if redisStore,ok:=swl.storage.(*storage.RedisMemory);ok{
+		elapsed:= now.Sub(windowStart)
+		weight := 1.0 - (float64(elapsed) / float64(swl.config.Window))
+		return redisStore.SlidingWindowIncrement(
+            currWinKey,
+            prevWinKey,
+            swl.config.Rate,
+            weight,
+            swl.config.Window * 2,
+        )
+
+	}	
 	// Clean up very old data (2+ windows old)
 	veryOldStart := prevStart.Add(-swl.config.Window)
 	veryOldKey := fmt.Sprintf("%s:%d", key, veryOldStart.Unix())
