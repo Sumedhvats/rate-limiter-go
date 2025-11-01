@@ -4,7 +4,6 @@ import (
 	"sync"
 	"testing"
 	"time"
-
 	"github.com/stretchr/testify/assert"
 )
 
@@ -19,7 +18,7 @@ func TestMemoryStorate_GetSet(t *testing.T) {
 	assert.Equal(t,"value1",val)
 }
 
-func TestExpiration (t *testing.T){
+func TestExpiration(t *testing.T){
 	  store := NewMemoryStorage()
 
     ttl := 100* time.Millisecond
