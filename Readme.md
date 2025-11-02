@@ -451,7 +451,11 @@ store := storage.NewRedisStorageWithClient(client)
 ---
 
 ## Performance Benchmarks
-
+![Memory & Allocation Efficiency (In-Memory)](./benchmarks/Images/image.png)
+![Performance Scalibility (By concurrency)](./benchmarks/Images/image-1.png)
+![Performance Scalability (by Number of Keys)](./benchmarks/Images/image-2.png)
+![Storage Backend Performance (Memory vs. Redis)](./benchmarks/Images/image-3.png)
+![Algorithm Performance (Concurrent Workloads)](./benchmarks/Images/image-4.png)
 ### Real-World Results
 
 Benchmarked on **12th Gen Intel i5-12500H** (16 logical cores):
