@@ -7,8 +7,9 @@ import (
 	"github.com/sumedhvats/rate-limiter-go/pkg/limiter"
 	"github.com/sumedhvats/rate-limiter-go/pkg/storage"
 )
-func benchmarkLimiter(b *testing.B,l limiter.Limiter){
-	key:="user123"
+
+func benchmarkLimiter(b *testing.B, l limiter.Limiter) {
+	key := "user123"
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		l.Allow(key)
@@ -22,7 +23,7 @@ func BenchmarkLimiters(b *testing.B) {
 
 	b.Run("TokenBucket", func(b *testing.B) {
 		tb := limiter.NewTokenBucketLimiter(memStore, limiter.Config{
-			Rate:rate,
+			Rate:   rate,
 			Window: window,
 		})
 		benchmarkLimiter(b, tb)
@@ -30,7 +31,7 @@ func BenchmarkLimiters(b *testing.B) {
 
 	b.Run("FixedWindow", func(b *testing.B) {
 		fw := limiter.NewFixedWindowLimiter(memStore, limiter.Config{
-			Rate:rate,
+			Rate:   rate,
 			Window: window,
 		})
 		benchmarkLimiter(b, fw)
@@ -38,7 +39,7 @@ func BenchmarkLimiters(b *testing.B) {
 
 	b.Run("SlidingWindow", func(b *testing.B) {
 		sw := limiter.NewSlidingWindowLimiter(memStore, limiter.Config{
-			Rate:rate,
+			Rate:   rate,
 			Window: window,
 		})
 		benchmarkLimiter(b, sw)

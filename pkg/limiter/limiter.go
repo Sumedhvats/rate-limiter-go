@@ -1,26 +1,27 @@
 package limiter
 
 import "time"
-type stats struct{
-	Limit int
+
+type stats struct {
+	Limit     int
 	Remaining int
-	ResetAt time.Time
+	ResetAt   time.Time
 }
-type Limiter interface{
-	Allow(key string)(bool,error)
-	AllowN(key string ,n int)(bool,error)
+type Limiter interface {
+	Allow(key string) (bool, error)
+	AllowN(key string, n int) (bool, error)
 	Reset(key string) error
-	GetStats(key string)(*stats,error)
+	GetStats(key string) (*stats, error)
 }
-type Config struct{
-	Rate int
+type Config struct {
+	Rate   int
 	Window time.Duration
-	Burst int
+	Burst  int
 }
 
-type Storage interface{
-	Get(key string)(interface{},error)
-	Set(key string , value interface{}, ttl time.Duration)error
-	Increment(key string, value int,ttl time.Duration)(int64,error)
-	Delete(key string)error
+type Storage interface {
+	Get(key string) (interface{}, error)
+	Set(key string, value interface{}, ttl time.Duration) error
+	Increment(key string, value int, ttl time.Duration) (int64, error)
+	Delete(key string) error
 }

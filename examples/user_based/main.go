@@ -17,7 +17,7 @@ import (
 	"github.com/sumedhvats/rate-limiter-go/pkg/storage"
 )
 
-func profileHandler(w http.ResponseWriter,r *http.Request){
+func profileHandler(w http.ResponseWriter, r *http.Request) {
 	userID := r.Header.Get("X-User-ID")
 	if userID == "" {
 		http.Error(w, "Missing X-User-ID header", http.StatusUnauthorized)
@@ -31,28 +31,28 @@ func profileHandler(w http.ResponseWriter,r *http.Request){
 	json.NewEncoder(w).Encode(response)
 
 }
-func main(){
-	store:=storage.NewMemoryStorage()
-	rateLimiter:=limiter.NewSlidingWindowLimiter(store,limiter.Config{
-		Rate:10,
-		Window:time.Minute,
+func main() {
+	store := storage.NewMemoryStorage()
+	rateLimiter := limiter.NewSlidingWindowLimiter(store, limiter.Config{
+		Rate:   10,
+		Window: time.Minute,
 	})
-	userKeyFunc:= func(r *http.Request)string{
+	userKeyFunc := func(r *http.Request) string {
 		userID := r.Header.Get("X-User-ID")
 		if userID == "" {
-            return r.RemoteAddr
-        }
-        return "user:" + userID
+			return r.RemoteAddr
+		}
+		return "user:" + userID
 	}
-		onLimit := func(w http.ResponseWriter, r *http.Request) {
+	onLimit := func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusTooManyRequests)
 		json.NewEncoder(w).Encode(map[string]string{
 			"error": "Rate limit exceeded. Please try again later.",
 		})
 	}
-	mux :=http.NewServeMux()
-	mux.HandleFunc("/api/profile",profileHandler)
+	mux := http.NewServeMux()
+	mux.HandleFunc("/api/profile", profileHandler)
 	handler := middleware.RateLimitMiddleware(middleware.Config{
 		Limiter: rateLimiter,
 		KeyFunc: userKeyFunc,

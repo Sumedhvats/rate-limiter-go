@@ -1,69 +1,69 @@
 package storage
 
 import (
+	"github.com/stretchr/testify/assert"
 	"sync"
 	"testing"
 	"time"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestMemoryStorate_GetSet(t *testing.T) {
-	store:= NewMemoryStorage()
+	store := NewMemoryStorage()
 
-	err:=store.Set("123.234.15.1","value1",1*time.Minute)
-	assert.NoError(t,err)
+	err := store.Set("123.234.15.1", "value1", 1*time.Minute)
+	assert.NoError(t, err)
 
-	val,err:=store.Get("123.234.15.1")
-	assert.NoError(t,err)
-	assert.Equal(t,"value1",val)
+	val, err := store.Get("123.234.15.1")
+	assert.NoError(t, err)
+	assert.Equal(t, "value1", val)
 }
 
-func TestExpiration(t *testing.T){
-	  store := NewMemoryStorage()
+func TestExpiration(t *testing.T) {
+	store := NewMemoryStorage()
 
-    ttl := 100* time.Millisecond
-	err:=store.Set("tempKey","tempValue",ttl)
-	assert.NoError(t,err)
+	ttl := 100 * time.Millisecond
+	err := store.Set("tempKey", "tempValue", ttl)
+	assert.NoError(t, err)
 
 	val, err := store.Get("tempKey")
-    assert.NoError(t, err)
-    assert.Equal(t, "tempValue", val)
+	assert.NoError(t, err)
+	assert.Equal(t, "tempValue", val)
 
-	time.Sleep(ttl+100*time.Millisecond)
+	time.Sleep(ttl + 100*time.Millisecond)
 	val, err = store.Get("tempKey")
-    assert.NoError(t, err)
-    assert.Nil(t, val)
+	assert.NoError(t, err)
+	assert.Nil(t, val)
 }
 
-func TestMemoryStorate_Increment(t *testing.T){
-	store:=NewMemoryStorage()
-	
-	val,err:=store.Increment("counter",5,time.Minute)
-	  assert.NoError(t, err)
-    assert.Equal(t, int64(5), val)
+func TestMemoryStorate_Increment(t *testing.T) {
+	store := NewMemoryStorage()
 
-val,err=store.Increment("counter",3,time.Minute)
-	  assert.NoError(t, err)
-    assert.Equal(t, int64(8), val)
-	
-	got,err:=store.Get("counter")
-	  assert.NoError(t, err)
-    assert.Equal(t, int64(8), got.(int64))
+	val, err := store.Increment("counter", 5, time.Minute)
+	assert.NoError(t, err)
+	assert.Equal(t, int64(5), val)
+
+	val, err = store.Increment("counter", 3, time.Minute)
+	assert.NoError(t, err)
+	assert.Equal(t, int64(8), val)
+
+	got, err := store.Get("counter")
+	assert.NoError(t, err)
+	assert.Equal(t, int64(8), got.(int64))
 }
 
-func TestConcurrentAccess(t *testing.T){
-	store:=NewMemoryStorage()
+func TestConcurrentAccess(t *testing.T) {
+	store := NewMemoryStorage()
 	var wg sync.WaitGroup
-	for i:=0;i<100;i++{
+	for i := 0; i < 100; i++ {
 		wg.Add(1)
-		go func(){
+		go func() {
 			defer wg.Done()
-			_,err:=store.Increment("temp",100,time.Minute)
-			assert.NoError(t,err)
+			_, err := store.Increment("temp", 100, time.Minute)
+			assert.NoError(t, err)
 		}()
-		}
-		wg.Wait()
-			currVal,err:=store.Get("temp")
-		assert.NoError(t,err)
-		assert.Equal(t,currVal,int64(10000))
+	}
+	wg.Wait()
+	currVal, err := store.Get("temp")
+	assert.NoError(t, err)
+	assert.Equal(t, currVal, int64(10000))
 }

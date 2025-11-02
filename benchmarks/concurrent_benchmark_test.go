@@ -11,7 +11,6 @@ import (
 	"github.com/sumedhvats/rate-limiter-go/pkg/storage"
 )
 
-// generateKeys creates n unique keys for testing
 func generateKeys(n int) []string {
 	keys := make([]string, n)
 	for i := 0; i < n; i++ {
@@ -20,7 +19,6 @@ func generateKeys(n int) []string {
 	return keys
 }
 
-// BenchmarkSingleKey tests performance with a single hotspot key
 func BenchmarkSingleKey(b *testing.B) {
 	cfg := limiter.Config{
 		Rate:   100,
@@ -82,7 +80,6 @@ func BenchmarkSingleKey(b *testing.B) {
 	})
 }
 
-// BenchmarkMultipleKeys tests performance with independent keys
 func BenchmarkMultipleKeys(b *testing.B) {
 	cfg := limiter.Config{
 		Rate:   100,
@@ -158,7 +155,6 @@ func BenchmarkMultipleKeys(b *testing.B) {
 	})
 }
 
-// BenchmarkRandomDistribution tests with random key access patterns
 func BenchmarkRandomDistribution(b *testing.B) {
 	cfg := limiter.Config{
 		Rate:   100,
@@ -234,17 +230,15 @@ func BenchmarkRandomDistribution(b *testing.B) {
 	})
 }
 
-// BenchmarkHotspotDistribution tests with 80/20 distribution (Pareto principle)
 func BenchmarkHotspotDistribution(b *testing.B) {
 	cfg := limiter.Config{
 		Rate:   100,
 		Window: time.Second,
 	}
 	const keyPoolSize = 1000
-	const hotspotSize = 200 // 20% of keys
+	const hotspotSize = 200
 	keys := generateKeys(keyPoolSize)
 
-	// hotspotKey selects a key with 80% probability from hot keys
 	hotspotKey := func(rng *rand.Rand) string {
 		if rng.Intn(100) < 80 {
 			return keys[rng.Intn(hotspotSize)]
@@ -313,7 +307,6 @@ func BenchmarkHotspotDistribution(b *testing.B) {
 	})
 }
 
-// BenchmarkScalability tests with varying number of keys
 func BenchmarkScalability(b *testing.B) {
 	cfg := limiter.Config{
 		Rate:   100,
@@ -366,7 +359,6 @@ func BenchmarkScalability(b *testing.B) {
 	}
 }
 
-// BenchmarkDifferentRates tests performance with varying rate limits
 func BenchmarkDifferentRates(b *testing.B) {
 	rates := []int{10, 100, 1000, 10000}
 	const keyPoolSize = 100
@@ -419,7 +411,6 @@ func BenchmarkDifferentRates(b *testing.B) {
 	}
 }
 
-// BenchmarkVaryingConcurrency tests with different concurrency levels
 func BenchmarkVaryingConcurrency(b *testing.B) {
 	cfg := limiter.Config{
 		Rate:   100,

@@ -155,56 +155,55 @@ func TestSlidingWindowReset(t *testing.T) {
 }
 
 func TestSlidingWindowBurstHandling(t *testing.T) {
-    store := storage.NewMemoryStorage()
-    config := limiter.Config{Rate: 20, Window: 10*time.Second}
-    limiter := limiter.NewSlidingWindowLimiter(store, config)
-    
-    for i := 0; i < 20; i++ {
-        ok, err := limiter.Allow("test3")
-        assert.NoError(t, err)
-        assert.True(t, ok)
-    }
-    ok, _ := limiter.Allow("test3")
-    assert.False(t, ok)
-    
-    // Wait for MORE than a full window to completely reset
-    time.Sleep(21 * time.Second)
-    
-    for i := 0; i < 20; i++ {
-        ok, err := limiter.Allow("test3")
-        assert.NoError(t, err)
-        assert.True(t, ok)
-    }
+	store := storage.NewMemoryStorage()
+	config := limiter.Config{Rate: 20, Window: 10 * time.Second}
+	limiter := limiter.NewSlidingWindowLimiter(store, config)
+
+	for i := 0; i < 20; i++ {
+		ok, err := limiter.Allow("test3")
+		assert.NoError(t, err)
+		assert.True(t, ok)
+	}
+	ok, _ := limiter.Allow("test3")
+	assert.False(t, ok)
+
+	// Wait for MORE than a full window to completely reset
+	time.Sleep(21 * time.Second)
+
+	for i := 0; i < 20; i++ {
+		ok, err := limiter.Allow("test3")
+		assert.NoError(t, err)
+		assert.True(t, ok)
+	}
 }
 
 func TestSlidingWIndowAllowNLimiting(t *testing.T) {
 	store := storage.NewMemoryStorage()
 	config := limiter.Config{Rate: 100, Window: 1 * time.Minute, Burst: 100}
 	limiter := limiter.NewSlidingWindowLimiter(store, config)
-	ok, err :=limiter.AllowN("test4",50)
+	ok, err := limiter.AllowN("test4", 50)
 	assert.NoError(t, err)
 	assert.True(t, ok)
 
-	ok, err =limiter.AllowN("test4",50)
+	ok, err = limiter.AllowN("test4", 50)
 	assert.NoError(t, err)
 	assert.True(t, ok)
 
-	ok, err =limiter.AllowN("test4",1)
+	ok, err = limiter.AllowN("test4", 1)
 	assert.NoError(t, err)
 	assert.False(t, ok)
 
 }
 
-
 func TestSWMultipleKeys(t *testing.T) {
-store := storage.NewMemoryStorage()
-cfg := limiter.Config{Rate: 10, Window: 5*time.Second, Burst: 10}
-limiter := limiter.NewSlidingWindowLimiter(store, cfg)
+	store := storage.NewMemoryStorage()
+	cfg := limiter.Config{Rate: 10, Window: 5 * time.Second, Burst: 10}
+	limiter := limiter.NewSlidingWindowLimiter(store, cfg)
 
-for i := 0; i < 10; i++ {
-	limiter.Allow("user1")
-}
+	for i := 0; i < 10; i++ {
+		limiter.Allow("user1")
+	}
 
-ok, _ := limiter.Allow("user2")
-assert.True(t, ok)
+	ok, _ := limiter.Allow("user2")
+	assert.True(t, ok)
 }
