@@ -13,7 +13,7 @@ type RedisMemory struct {
 	ctx    context.Context
 }
 
-func NewRedisMemory(addr string) *RedisMemory {
+func NewRedisStorage(addr string) *RedisMemory {
 	ctx := context.Background()
 	client := redis.NewClient(&redis.Options{
 		Addr:         addr,
@@ -64,7 +64,7 @@ func (r *RedisMemory) SlidingWindowIncrement(
 	ttl time.Duration,
 
 ) (bool, error) {
-	script:=redis.NewScript( `
+	script := redis.NewScript(`
 -- KEYS[1]: current window key
 -- KEYS[2]: previous window key
 -- ARGV[1]: limit
@@ -92,17 +92,17 @@ redis.call('EXPIRE', current_key, ttl)
 return 1
 
 `)
-result,err:=script.Run(
-	r.ctx,
-	r.client,
-	[]string{currentKey,previousKey},
-	limit,
-	weight,
-	int(ttl.Seconds()),
-	1,
-).Int()
-if err!=nil{
-	return false,err
-}
-return result==1,err
+	result, err := script.Run(
+		r.ctx,
+		r.client,
+		[]string{currentKey, previousKey},
+		limit,
+		weight,
+		int(ttl.Seconds()),
+		1,
+	).Int()
+	if err != nil {
+		return false, err
+	}
+	return result == 1, err
 }

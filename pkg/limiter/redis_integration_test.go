@@ -21,7 +21,7 @@ func RedisTest(t *testing.T) (*storage.RedisMemory, func()) {
 	redisEndpint, err := redisContainer.Endpoint(ctx, "")
 	assert.NoError(t, err)
 
-	store := storage.NewRedisMemory(redisEndpint)
+	store := storage.NewRedisStorage(redisEndpint)
 
 	cleanup := func() {
 		redisContainer.Terminate(ctx)
@@ -56,18 +56,17 @@ func TestSlidingWindow_Redis_Concurrent(t *testing.T) {
 		}()
 	}
 	wg.Wait()
-	 tolerance := 5.0
+	tolerance := 5.0
 
-    assert.InDelta(t, int64(100), allowed, tolerance, "allowed count should be around 100")
+	assert.InDelta(t, int64(100), allowed, tolerance, "allowed count should be around 100")
 
-    assert.InDelta(t,  int64(100), denied, tolerance, "denied count should be around 100")
+	assert.InDelta(t, int64(100), denied, tolerance, "denied count should be around 100")
 
-    assert.Equal(t,  int64(200), allowed+denied, "total should be exactly 200")
+	assert.Equal(t, int64(200), allowed+denied, "total should be exactly 200")
 
 }
 
-
-func TestRedis_DestributedRateLimiting(t *testing.T){
+func TestRedis_DestributedRateLimiting(t *testing.T) {
 	store, cleanup := RedisTest(t)
 	defer cleanup()
 
@@ -76,24 +75,22 @@ func TestRedis_DestributedRateLimiting(t *testing.T){
 		Window: time.Minute,
 	})
 	limiter2 := NewSlidingWindowLimiter(store, Config{
-        Rate:   10,
-        Window: 1 * time.Minute,
-    })
+		Rate:   10,
+		Window: 1 * time.Minute,
+	})
 
+	for i := 0; i < 5; i++ {
+		allowed, _ := limiter.Allow("user:123")
+		assert.True(t, allowed)
+	}
+	for i := 0; i < 5; i++ {
+		allowed, _ := limiter2.Allow("user:123")
+		assert.True(t, allowed)
+	}
 
-	 for i := 0; i < 5; i++ {
-        allowed, _ := limiter.Allow("user:123")
-        assert.True(t, allowed)
-    }
-    for i := 0; i < 5; i++ {
-        allowed, _ := limiter2.Allow("user:123")
-        assert.True(t, allowed)
-    }
+	allowed, _ := limiter.Allow("user:123")
+	assert.False(t, allowed)
 
-
-	 allowed, _ := limiter.Allow("user:123")
-    assert.False(t, allowed)
-
-    allowed, _ = limiter2.Allow("user:123")
-    assert.False(t, allowed)
+	allowed, _ = limiter2.Allow("user:123")
+	assert.False(t, allowed)
 }
