@@ -1,3 +1,4 @@
+// Package limiter provides rate limiting algorithm implementations.
 package limiter
 
 import (
@@ -7,18 +8,20 @@ import (
 
 	"github.com/sumedhvats/rate-limiter-go/pkg/storage"
 )
-
+// FixedWindowLimiter implements the fixed window rate limiting algorithm.
 type FixedWindowLimiter struct {
 	storage Storage
 	config  Config
 }
-
+// NewFixedWindowLimiter creates a new FixedWindowLimiter.
 func NewFixedWindowLimiter(store Storage, cfg Config) *FixedWindowLimiter {
 	return &FixedWindowLimiter{
 		storage: store,
 		config:  cfg,
 	}
 }
+
+// AllowN checks if n requests are allowed for the given key in the current window.
 func (fwl *FixedWindowLimiter) AllowN(key string, n int) (bool, error) {
 	// now := time.Now()
 	// windowStart := now.Truncate(fwl.config.Window)
@@ -61,14 +64,15 @@ func (fwl *FixedWindowLimiter) allowNMemory(windowKey string, n int) (bool, erro
 	fwl.storage.Increment(windowKey, -n, fwl.config.Window*2)
 	return false, nil
 }
-
+// Allow checks if a single request is allowed for the given key in the current window.
 func (f *FixedWindowLimiter) Allow(key string) (bool, error) {
 	return f.AllowN(key, 1)
 }
+// Reset clears the rate limit data for the given key.
 func (f *FixedWindowLimiter) Reset(key string) error {
 	return f.storage.Delete(key)
 }
-
+// GetStats returns the current rate limit statistics for the given key.
 func (f *FixedWindowLimiter) GetStats(key string) (*stats, error) {
 	now := time.Now()
 	windowStart := now.Truncate(f.config.Window)

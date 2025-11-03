@@ -1,3 +1,5 @@
+// Package storage provides interfaces and implementations 
+// for rate limiter data storage.
 package storage
 
 import (
@@ -7,12 +9,13 @@ import (
 
 	"github.com/redis/go-redis/v9"
 )
-
+// RedisMemory implements a storage backend using a Redis client.
 type RedisMemory struct {
 	client *redis.Client
 	ctx    context.Context
 }
-
+// NewRedisStorage creates and returns a new RedisMemory store,
+// connecting to the Redis instance at the given address.
 func NewRedisStorage(addr string) *RedisMemory {
 	ctx := context.Background()
 	client := redis.NewClient(&redis.Options{
@@ -34,6 +37,7 @@ func NewRedisStorage(addr string) *RedisMemory {
 		ctx:    ctx,
 	}
 }
+// Get retrieves a value from Redis by key.
 func (r *RedisMemory) Get(key string) (interface{}, error) {
 	data, err := r.client.Get(r.ctx, key).Result()
 	if err == redis.Nil {
@@ -46,17 +50,20 @@ func (r *RedisMemory) Get(key string) (interface{}, error) {
 	}
 	return data, nil
 }
+// Set stores a value in Redis with a specified TTL.
 func (r *RedisMemory) Set(key string, value interface{}, ttl time.Duration) error {
 	return r.client.Set(r.ctx, key, value, ttl).Err()
 }
-
+// Delete removes a key from Redis.
 func (r *RedisMemory) Delete(key string) error {
 	return r.client.Del(r.ctx, key).Err()
 }
-
+// Increment atomically increments a key's value by amount and returns the new value.
 func (r *RedisMemory) Increment(key string, amount int, ttl time.Duration) (int64, error) {
 	return r.client.IncrBy(r.ctx, key, int64(amount)).Result()
 }
+
+// SlidingWindowIncrement performs an atomic sliding window check and increment using a Lua script.
 func (r *RedisMemory) SlidingWindowIncrement(
 	currentKey, previousKey string,
 	limit int,
@@ -106,6 +113,7 @@ return 1
 	}
 	return result == 1, err
 }
+// FixedWindowIncrement performs an atomic fixed window check and increment using a Lua script.
 func (r *RedisMemory) FixedWindowIncrement(
 	key string,
 	increment int,
@@ -154,6 +162,7 @@ return 1  -- Allowed
 
 	return result == 1, nil
 }
+// TokenBucketAllow performs an atomic token bucket check and update using a Lua script.
 func (r *RedisMemory) TokenBucketAllow(
 	key string,
 	tokens int,

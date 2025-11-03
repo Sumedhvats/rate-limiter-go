@@ -1,3 +1,4 @@
+// Package middleware provides HTTP middleware for rate limiting.
 package middleware
 
 import (
@@ -11,12 +12,16 @@ import (
 	"github.com/sumedhvats/rate-limiter-go/pkg/limiter"
 )
 
+// Config holds the configuration for the rate limiting middleware.
 type Config struct {
-	Limiter limiter.Limiter
-	KeyFunc func(*http.Request) string
-	OnLimit func(http.ResponseWriter, *http.Request)
+    // Limiter is the rate limiter instance to use.
+    Limiter limiter.Limiter
+    // KeyFunc extracts a unique client identifier from an HTTP request.
+    KeyFunc func(*http.Request) string
+    // OnLimit is an optional handler to call when a request is denied.
+    OnLimit func(http.ResponseWriter, *http.Request)
 }
-
+// RateLimitMiddleware returns a new HTTP middleware that applies rate limiting.
 func RateLimitMiddleware(cfg Config) func(http.Handler) http.Handler {
 	if cfg.KeyFunc == nil {
 		cfg.KeyFunc = DefaultKeyFunc
@@ -57,7 +62,8 @@ func RateLimitMiddleware(cfg Config) func(http.Handler) http.Handler {
 		})
 	}
 }
-
+// DefaultKeyFunc is the default function to extract a client's IP address from a request.
+// It prioritizes "X-Forwarded-For" before falling back to "RemoteAddr".
 func DefaultKeyFunc(r *http.Request) string {
 	if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
 		parts := strings.Split(xff, ",")

@@ -1,3 +1,4 @@
+// Package limiter provides rate limiting algorithm implementations.
 package limiter
 
 import (
@@ -11,19 +12,19 @@ type tokenBucket struct {
 	capacity      int
 	refillRate    float64
 }
-
+// TokenBucketLimiter implements the token bucket rate limiting algorithm.
 type TokenBucketLimiter struct {
 	storage Storage
 	config  Config
 }
-
+// NewTokenBucketLimiter creates a new TokenBucketLimiter.
 func NewTokenBucketLimiter(store Storage, cfg Config) *TokenBucketLimiter {
 	return &TokenBucketLimiter{
 		storage: store,
 		config:  cfg,
 	}
 }
-
+// AllowN checks if n tokens can be consumed for the given key.
 func (t *TokenBucketLimiter) AllowN(key string, n int) (bool, error) {
 	if redisStore, ok := t.storage.(*storage.RedisMemory); ok {
 		return t.allowNRedis(redisStore, key, n)
@@ -98,15 +99,15 @@ func (t *TokenBucketLimiter) allowNMemory(key string, n int) (bool, error) {
 		}
 	}
 }
-
+// Allow checks if a single request (1 token) can be consumed for the given key.
 func (t *TokenBucketLimiter) Allow(key string) (bool, error) {
 	return t.AllowN(key, 1)
 }
-
+// Reset clears the rate limit data for the given key.
 func (t *TokenBucketLimiter) Reset(key string) error {
 	return t.storage.Delete(key)
 }
-
+// GetStats returns the current rate limit statistics for the given key.
 func (t *TokenBucketLimiter) GetStats(key string) (*stats, error) {
 	now := time.Now()
 	data, _ := t.storage.Get(key)

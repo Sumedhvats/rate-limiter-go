@@ -1,3 +1,4 @@
+// Package limiter provides rate limiting algorithm implementations.
 package limiter
 
 import (
@@ -6,18 +7,20 @@ import (
 	"math"
 	"time"
 )
-
+// SlidingWindowLimiter implements the sliding window rate limiting algorithm.
 type SlidingWindowLimiter struct {
 	storage Storage
 	config  Config
 }
-
+// NewSlidingWindowLimiter creates a new SlidingWindowLimiter.
 func NewSlidingWindowLimiter(store Storage, cfg Config) *SlidingWindowLimiter {
 	return &SlidingWindowLimiter{
 		storage: store,
 		config:  cfg,
 	}
 }
+
+// AllowN checks if n requests are allowed for the given key.
 func (swl *SlidingWindowLimiter) AllowN(key string, n int) (bool, error) {
 	now := time.Now()
 	windowStart := now.Truncate(swl.config.Window)
@@ -75,11 +78,11 @@ func (swl *SlidingWindowLimiter) allowNMemory(
 	swl.storage.Increment(currWinKey, n, swl.config.Window*2)
 	return true, nil
 }
-
+// Allow checks if a single request is allowed for the given key.
 func (swl *SlidingWindowLimiter) Allow(key string) (bool, error) {
 	return swl.AllowN(key, 1)
 }
-
+// Reset clears the rate limit data for the given key.
 func (swl *SlidingWindowLimiter) Reset(key string) error {
 	now := time.Now()
 	windowStart := now.Truncate(swl.config.Window)
@@ -92,7 +95,7 @@ func (swl *SlidingWindowLimiter) Reset(key string) error {
 	_ = swl.storage.Delete(prevWinKey)
 	return nil
 }
-
+// GetStats returns the current rate limit statistics for the given key.
 func (swl *SlidingWindowLimiter) GetStats(key string) (*stats, error) {
 	now := time.Now()
 	windowStart := now.Truncate(swl.config.Window)
