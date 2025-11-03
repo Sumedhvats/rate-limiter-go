@@ -2,6 +2,7 @@ package limiter
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/sumedhvats/rate-limiter-go/pkg/storage"
@@ -19,9 +20,18 @@ func NewFixedWindowLimiter(store Storage, cfg Config) *FixedWindowLimiter {
 	}
 }
 func (fwl *FixedWindowLimiter) AllowN(key string, n int) (bool, error) {
-	now := time.Now()
-	windowStart := now.Truncate(fwl.config.Window)
-	windowKey := fmt.Sprintf("%s:%d", key, windowStart.Unix())
+	// now := time.Now()
+	// windowStart := now.Truncate(fwl.config.Window)
+	// windowKey := fmt.Sprintf("%s:%d", key, windowStart.Unix())
+
+	nowUnix := time.Now().Unix()
+	//(nowUnix / windowSize) * windowSize
+	windowStart := (nowUnix / int64(fwl.config.Window.Seconds())) * int64(fwl.config.Window.Seconds())
+	
+	// Pre-allocate key buffer or use string builder
+
+
+	windowKey := key + ":" + strconv.FormatInt(windowStart, 10)
 
 	if redisStore, ok := fwl.storage.(*storage.RedisMemory); ok {
 		return fwl.allowNRedis(redisStore, windowKey, n)
