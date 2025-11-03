@@ -786,14 +786,14 @@ This is useful for:
 
 ## Roadmap
 
-### v1.x (Current)
+### v0.1.x (Current)
 - ✅ Four rate limiting algorithms
 - ✅ Memory and Redis storage
 - ✅ HTTP middleware
 - ✅ Comprehensive benchmarks
 - ✅ Rate limit headers
 
-### v2.0 (Planned)
+### v1.0 (Planned)
 - [ ] Adaptive rate limiting (adjust limits based on load)
 - [ ] Cost-based rate limiting (different costs per endpoint)
 - [ ] Circuit breaker integration
@@ -802,13 +802,13 @@ This is useful for:
 - [ ] Memcached storage backend
 - [ ] gRPC middleware (built-in)
 
-### v3.0 (Future)
+### v2.0 (Future)
 - [ ] Distributed coordination without Redis (gossip protocol)
 - [ ] WebSocket rate limiting
 - [ ] GraphQL query complexity rate limiting
 - [ ] Admin dashboard
 
-**Contributions welcome!** See [CONTRIBUTING.md](CONTRIBUTING.md)
+**Contributions welcome!**
 
 ---
 
@@ -889,10 +889,8 @@ Special thanks to all contributors and the Go community!
 - 📚 **Documentation:** [pkg.go.dev](https://pkg.go.dev/github.com/sumedhvats/rate-limiter-go)
 - 🐛 **Issues:** [GitHub Issues](https://github.com/sumedhvats/rate-limiter-go/issues)
 - 💬 **Discussions:** [GitHub Discussions](https://github.com/sumedhvats/rate-limiter-go/discussions)
-- 📧 **Email:** [maintainer email if you want to include]
+- 📧 **Email:** [Sumedhvats2004@gmail.com]
 
 ---
-
-**Built with ❤️ by developers, for developers.**
 
 If this library helps you, consider giving it a ⭐ on GitHub!
